@@ -11,15 +11,19 @@
 #include <sys/types.h>
 
 int handle_connection(int clientFD) {
-  // printf("Connection accepted. status_code: %d\n", clientFD);
-  char c[100];
-  read(clientFD, c, sizeof(c));
+  char c[12];
+  read(clientFD, c, sizeof(char) * 12);
   char *resp = "ack!";
   write(clientFD, resp, sizeof(char) * 4);
   sleep(1);
-  printf("payload: %s\n", c);
-  close(clientFD);
+  printf("payload: %s \n", c);
   return 1;
+}
+
+int isChild(int pid) {
+  if (pid == 0)
+    return 1;
+  return 0;
 }
 
 int main() {
@@ -30,26 +34,32 @@ int main() {
   socklen_t addr_len = sizeof(addr);
 
   int bindAck = bind(fd, (struct sockaddr *)&addr, addr_len);
-
   if (bindAck >= 0) {
-    printf("Connection successful. status_code: %d\n", bindAck);
+    printf("Bind successful.\n");
   } else {
-    printf("\nbind failed\n");
-    perror("");
+    perror("Error: ");
   }
-  int listenAck = listen(fd, 1);
 
-  printf("Listening. status_code: %d\n", listenAck);
+  int listenAck = listen(fd, 1);
+  if (listenAck >= 0) {
+    printf("Listening.\n");
+  } else {
+    perror("Error: ");
+  }
 
   while (1) {
     int clientFD = accept(fd, (struct sockaddr *)&addr, &addr_len);
-    int pid = fork();
-    if (clientFD >= 0 && pid == 0) {
-      handle_connection(clientFD);
-    } else if (clientFD < 0) {
+    if (clientFD >= 0) {
+      int pid = fork();
+      if (isChild(pid)) {
+        handle_connection(clientFD);
+      }
+      close(clientFD);
+      if (isChild(pid))
+        return 0;
+    } else {
       printf("Failed Connection");
     }
-    close(clientFD);
   }
 
   return 0;

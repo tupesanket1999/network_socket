@@ -20,9 +20,9 @@ int main() {
 
   if (connectAck >= 0) {
     printf("Connection successful. status_code: %d\n", connectAck);
-    char *req = "hello word!";
-    char resp[100];
-    write(fd, req, sizeof(char) * 11);
+    char *req = "hello world!";
+    char resp[4];
+    write(fd, req, sizeof(char) * 12);
     read(fd, resp, sizeof(char) * 4);
     printf("response: %s\n", resp);
     close(fd);
