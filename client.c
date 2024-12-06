@@ -13,13 +13,13 @@
 int main() {
   int fd = socket(AF_INET, SOCK_STREAM, 0);
 
-  struct sockaddr_in addr = {AF_INET, htons(777), INADDR_ANY};
+  struct sockaddr_in addr = {AF_INET, htons(1025), INADDR_ANY};
   socklen_t addr_len = sizeof(addr);
 
-  int connectAck = connect(fd, (struct sockaddr *)&addr, addr_len);
+  int synAck = connect(fd, (struct sockaddr *)&addr, addr_len);
 
-  if (connectAck >= 0) {
-    printf("Connection successful. status_code: %d\n", connectAck);
+  if (synAck >= 0) {
+    printf("Connection successful. status_code: %d\n", synAck);
     char *req = "hello world!";
     char resp[4];
     write(fd, req, sizeof(char) * 12);
@@ -28,7 +28,7 @@ int main() {
     close(fd);
     return 0;
   } else {
-    printf("Failed: %d", connectAck);
+    printf("Failed: %d", synAck);
     perror("connection failed");
     return 0;
   }
